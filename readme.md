@@ -1,5 +1,38 @@
 # 简介
-这个是一个node的工具demo，它能够提取一个文件下的目录结构以json的格式进行返回
+这个是一个node的工具demo，它能够提取一个文件下的目录结构以json的格式进行返回  
+如一个文件夹目录格式如下：  
+```
+documents  // 根目录
+├── 第一中心  // 一级目录
+│   └── 一部  //二级目录
+│      └── 浏览器  // 三级目录
+```
+
+将返回`documents`文件下整个目录结构，如：  
+```
+[
+    {
+        "name": "第一中心",
+        "children": [
+            {
+                "name": "一部",
+                "children": [
+                    {
+                        "name": "浏览器",
+                        "children": [
+                            {
+
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+]
+```  
+不仅如此，这个工具还支持`返回同级目录`和`同级目录下文件的分页查询`
+
 
 # node服务的目录结构及设计说明
 项目的目录结构，API设计等说明
@@ -7,7 +40,7 @@
 本项目目录结构如下所示：  
 ```
 server/
-├── constants //常量文件，存放有项目根路径，作者头像路径等
+├── constants // 常量文件，存放有项目根路径，作者头像路径等
 │   └── constants.js
 ├── node_modules // node的模块存放目录，安装了node模块后自动出现
 └── readme.md // 本介绍文档
@@ -19,7 +52,7 @@ server/
 │   └── documents // 展示demo 案例作品的文件夹
 └── src // 源码目录
 │   └── models // 处理业务逻辑的模型
-│   └── routes //路由，接收和转发请求
+│   └── routes // 路由，接收和转发请求
 ```
 ## 二、案例作品目录结构说明
 1. 作者头像  
@@ -44,33 +77,34 @@ server/
 * `/getProductionDetail` // 获取案例作品详情图片
 以下表示这4个API的结构案例：
 
-1.URL：http://localhost:8080/getDocumentDirectoryJson
-说明：获取documents整个文件夹下的目录结构
+1.URL：http://localhost:8080/getDocumentDirectoryJson  
+说明：获取documents整个文件夹下的目录结构  
 格式示例：
 ```
-{
-    "data": [
-        {
-            "name": "第一中心",
-            "children": {
-                "data": [
+[
+    {
+        "name": "第一中心",
+        "children": [
+            {
+                "name": "一部",
+                "children": [
                     {
-                        "name": "一部",
-                        "children": {
-                            "data": [
-                                {
-                                    "name": "浏览器",
-                                    "children": {}
-                                }]
-                        }
-                    }]
+                        "name": "浏览器",
+                        "children": [
+                            {
+
+                            }
+                        ]
+                    }
+                ]
             }
-        }]
-}
+        ]
+    }
+]
 ```
 
-2.URL：http://localhost:8080/getMenuDirectoryJson
-说明：获取案例作品左侧导航目录结构  
+2.URL：http://localhost:8080/getMenuDirectoryJson  
+说明：获取案例作品左侧导航目录结构，即返回'中心'以及'部门'文件目录结构，不包括'部门'下的文件    
 格式示例：
 ```
 {
@@ -95,8 +129,8 @@ server/
 }
 ```  
 
-3.URL: http://localhost:8080/getCaseProduction?currentPage=1&pageSize=2&id=documents%5C1-%E7%AC%AC%E4%B8%80%E4%B8%AD%E5%BF%83%5C1-%E4%B8%80%E9%83%A8
-说明：获取案例作品,currentPage表示当前页，pageSize表示总页数，total表示作品总数量，id后的字符串是`documents\\1-第一中心\\1-一部`，经过了encodeURI()编码后的处理
+3.URL: http://localhost:8080/getCaseProduction?currentPage=1&pageSize=2&id=documents%5C1-%E7%AC%AC%E4%B8%80%E4%B8%AD%E5%BF%83%5C1-%E4%B8%80%E9%83%A8  
+说明：获取案例作品,currentPage表示当前页，pageSize表示总页数，total表示作品总数量，id后的字符串是`documents\\1-第一中心\\1-一部`，经过了encodeURI()编码后的处理  
 格式示例：  
 ```  
 {
@@ -115,24 +149,27 @@ server/
 }
 ```
 
-4.URL：http://localhost:8080/getProductionDetail?id=documents%5C1-%E7%AC%AC%E4%B8%80%E4%B8%AD%E5%BF%83%5C1-%E4%B8%80%E9%83%A8%5C1-%E6%B5%8F%E8%A7%88%E5%99%A8
-说明：点击案例作品后，展开图片详情，id后的字符串是`documents\\1-第一中心\\1-一部\\1-浏览器`，同样经过了encodeURI()编码后的处理
+4.URL：http://localhost:8080/getProductionDetail?id=documents%5C1-%E7%AC%AC%E4%B8%80%E4%B8%AD%E5%BF%83%5C1-%E4%B8%80%E9%83%A8%5C1-%E6%B5%8F%E8%A7%88%E5%99%A8  
+说明：点击案例作品后，展开图片详情，id后的字符串是`documents\\1-第一中心\\1-一部\\1-浏览器`，同样经过了encodeURI()编码后的处理  
 格式示例：
 ```
-[
-    {
-        "name": "首页",
-        "imgUrl": "documents\\1-第一中心\\1-一部\\1-浏览器\\1-首页.jpg",
-        "sortID": "1"
-    },
-    {
-        "name": "菜单",
-        "imgUrl": "documents\\1-第一中心\\1-一部\\1-浏览器\\2-菜单.jpg",
-        "sortID": "2"
-    }
-]
+{
+    "data": [
+        {
+            "name": "首页",
+            "imgUrl": "documents\\1-第一中心\\1-一部\\1-浏览器\\1-首页.jpg",
+            "sortID": "1"
+        },
+        {
+            "name": "菜单",
+            "imgUrl": "documents\\1-第一中心\\1-一部\\1-浏览器\\2-菜单.jpg",
+            "sortID": "2"
+        }
+    ]
+}
+```
 
-##  依赖
+## 依赖
 `express: ^4.16.3`
 
 ## 运行

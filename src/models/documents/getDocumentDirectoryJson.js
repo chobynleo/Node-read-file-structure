@@ -52,7 +52,7 @@ ServerUtil.getDocumentDirectoryJson = function(aPath){
         }
         return 0;
     });
-    return {data:newFiles}
+    return newFiles
 };
 ServerUtil.sendError = function(req, res, error) {
     res.writeHead(500, {
